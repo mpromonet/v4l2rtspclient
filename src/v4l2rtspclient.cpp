@@ -61,6 +61,7 @@ class RTSPConnection : public RTSPClient
 				m_buffer = new u_int8_t[m_bufferSize];
 				memcpy(m_buffer, marker, sizeof(marker));
 			}
+			
 			virtual ~SessionSink()
 			{
 				delete [] m_buffer;
@@ -87,7 +88,7 @@ class RTSPConnection : public RTSPClient
 				}
 				else
 				{
-					if (!m_callback->notifyData(m_buffer, frameSize))
+					if (!m_callback->notifyData(m_buffer, frameSize+sizeof(marker)))
 					{
 						this->envir() << "NOTIFY failed\n";
 					}
@@ -99,9 +100,9 @@ class RTSPConnection : public RTSPClient
 			virtual Boolean continuePlaying()
 			{
 				Boolean ret = False;
-				if (fSource != NULL)
+				if (source() != NULL)
 				{
-					fSource->getNextFrame(m_buffer+sizeof(marker), m_bufferSize-sizeof(marker),
+					source()->getNextFrame(m_buffer+sizeof(marker), m_bufferSize-sizeof(marker),
 							afterGettingFrame, this,
 							onSourceClosure, this);
 					ret = True;
@@ -130,6 +131,8 @@ class RTSPConnection : public RTSPClient
 		
 		virtual ~RTSPConnection()
 		{
+			delete m_subSessionIter;
+			Medium::close(m_session);
 			TaskScheduler* scheduler = &m_env->taskScheduler();
 			m_env->reclaim();
 			delete scheduler;
