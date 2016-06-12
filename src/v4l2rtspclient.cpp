@@ -124,6 +124,8 @@ class RTSPConnection : public RTSPClient
 #endif
 							)
 						, m_env(&this->envir())
+						, m_session(NULL)
+						, m_subSessionIter(NULL)
 						, m_callback(callback)
 						, m_stop(0)
 		{
