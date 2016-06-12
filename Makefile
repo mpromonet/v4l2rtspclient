@@ -12,9 +12,14 @@ LDFLAGS += -lliveMedia -lgroupsock -lUsageEnvironment -lBasicUsageEnvironment
 # h264bitstream
 CFLAGS += -I h264bitstream
 
+
+
 v4l2rtspclient: h264bitstream/h264_stream.c h264bitstream/h264_nal.c h264bitstream/h264_sei.c src/v4l2rtspclient.cpp libv4l2cpp.a
 	$(CC) -o $@ $(CFLAGS) $^ $(LDFLAGS)
 
+h264bitstream/h264_stream.c:
+	git submodule init h264bitstream
+	git submodule update h264bitstream
 
 libv4l2cpp.a: 
 	git submodule init libv4l2cpp
