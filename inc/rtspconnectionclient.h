@@ -75,6 +75,7 @@ class RTSPConnection : public RTSPClient
 					if (m_callback)
 					{
 						m_markerSize = m_callback->onNewBuffer(m_buffer, m_bufferSize);
+						LOG(NOTICE) << "markerSize:" << m_markerSize;
 					}
 				}
 				
@@ -88,18 +89,18 @@ class RTSPConnection : public RTSPClient
 				
 				void afterGettingFrame(unsigned frameSize, unsigned numTruncatedBytes, struct timeval presentationTime, unsigned durationInMicroseconds)
 				{
-					this->envir() << "NOTIFY size:" << frameSize << "\n";
+					LOG(DEBUG) << "NOTIFY size:" << frameSize;
 					if (numTruncatedBytes != 0)
 					{
 						delete [] m_buffer;
-						this->envir() << "buffer too small, reallocate bigger one\n";
+						LOG(NOTICE) << "buffer too small " << m_bufferSize << " allocate bigger one\n";
 						allocate(m_bufferSize*2);
 					}
 					else if (m_callback)
 					{
 						if (!m_callback->onData(m_buffer, frameSize+m_markerSize))
 						{
-							this->envir() << "NOTIFY failed\n";
+							LOG(WARN) << "NOTIFY failed";
 						}
 					}
 					this->continuePlaying();
