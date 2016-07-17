@@ -26,7 +26,6 @@
 static void continueAfter ## uri(RTSPClient* rtspClient, int resultCode, char* resultString) { static_cast<RTSPConnection*>(rtspClient)->continueAfter ## uri(resultCode, resultString); } \
 void continueAfter ## uri (int resultCode, char* resultString) \
 /**/
-u_int8_t marker[] = { 0, 0, 0, 1 }; 
 
 /* ---------------------------------------------------------------------------
 **  RTSP client connection interface
@@ -40,8 +39,9 @@ class RTSPConnection : public RTSPClient
 		class Callback
 		{
 			public:
-				virtual bool onNewSession(const char* media, const char* codec) = 0;
-				virtual bool onData(unsigned char* buffer, ssize_t size) = 0;
+				virtual bool    onNewSession(const char* media, const char* codec) = 0;
+				virtual bool    onData(unsigned char* buffer, ssize_t size) = 0;
+				virtual ssize_t onNewBuffer(unsigned char* buffer, ssize_t size) { return 0; };
 		};
 
 	protected:
@@ -54,10 +54,13 @@ class RTSPConnection : public RTSPClient
 				static SessionSink* createNew(UsageEnvironment& env, Callback* callback) { return new SessionSink(env, callback); }
 
 			private:
-				SessionSink(UsageEnvironment& env, Callback* callback) : MediaSink(env), m_bufferSize(1024*1024), m_callback(callback) 
+				SessionSink(UsageEnvironment& env, Callback* callback) 
+					: MediaSink(env)
+					, m_bufferSize(0)
+					, m_callback(callback) 
+					, m_markerSize(0)
 				{
-					m_buffer = new u_int8_t[m_bufferSize];
-					memcpy(m_buffer, marker, sizeof(marker));
+					allocate(1024*1024);
 				}
 				
 				virtual ~SessionSink()
@@ -65,6 +68,16 @@ class RTSPConnection : public RTSPClient
 					delete [] m_buffer;
 				}
 
+				void allocate(ssize_t bufferSize)
+				{
+					m_bufferSize = bufferSize;
+					m_buffer = new u_int8_t[m_bufferSize];
+					if (m_callback)
+					{
+						m_markerSize = m_callback->onNewBuffer(m_buffer, m_bufferSize);
+					}
+				}
+				
 				static void afterGettingFrame(void* clientData, unsigned frameSize,
 							unsigned numTruncatedBytes,
 							struct timeval presentationTime,
@@ -79,14 +92,12 @@ class RTSPConnection : public RTSPClient
 					if (numTruncatedBytes != 0)
 					{
 						delete [] m_buffer;
-						m_bufferSize *= 2;
 						this->envir() << "buffer too small, reallocate bigger one\n";
-						m_buffer = new u_int8_t[m_bufferSize];
-						memcpy(m_buffer, marker, sizeof(marker));
+						allocate(m_bufferSize*2);
 					}
-					else
+					else if (m_callback)
 					{
-						if (!m_callback->onData(m_buffer, frameSize+sizeof(marker)))
+						if (!m_callback->onData(m_buffer, frameSize+m_markerSize))
 						{
 							this->envir() << "NOTIFY failed\n";
 						}
@@ -94,13 +105,12 @@ class RTSPConnection : public RTSPClient
 					this->continuePlaying();
 				}
 
-			private:
 				virtual Boolean continuePlaying()
 				{
 					Boolean ret = False;
 					if (source() != NULL)
 					{
-						source()->getNextFrame(m_buffer+sizeof(marker), m_bufferSize-sizeof(marker),
+						source()->getNextFrame(m_buffer+m_markerSize, m_bufferSize-m_markerSize,
 								afterGettingFrame, this,
 								onSourceClosure, this);
 						ret = True;
@@ -109,9 +119,10 @@ class RTSPConnection : public RTSPClient
 				}
 
 			private:
-				size_t    m_bufferSize;
-				u_int8_t* m_buffer;
-				Callback* m_callback; 	
+				size_t                 m_bufferSize;
+				u_int8_t*              m_buffer;
+				Callback*              m_callback; 	
+				ssize_t                m_markerSize;
 		};
 	
 	public:

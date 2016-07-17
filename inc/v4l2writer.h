@@ -24,6 +24,8 @@
 #include "rtspconnectionclient.h"
 #include "h264_stream.h"
 
+uint8_t marker[] = { 0, 0, 0, 1};
+
 class V4l2Writer : public RTSPConnection::Callback
 {
 	public:
@@ -38,6 +40,17 @@ class V4l2Writer : public RTSPConnection::Callback
 			h264_free(m_h264);
 		}
 	
+		virtual ssize_t onNewBuffer(unsigned char* buffer, ssize_t size)
+		{
+			ssize_t markerSize = 0;
+			if (size > sizeof(marker))
+			{
+				memcpy( buffer, marker, sizeof(marker) );
+				markerSize = sizeof(marker);
+			}
+			return 	markerSize;		
+		}
+		
 		virtual bool onNewSession(const char* media, const char* codec)
 		{
 			bool success = false;
