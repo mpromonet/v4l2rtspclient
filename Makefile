@@ -1,4 +1,4 @@
-CFLAGS = -W -Wall -pthread -g -pipe $(CFLAGS_EXTRA) -I include
+CFLAGS = -W -Wall -pthread -g -pipe $(CFLAGS_EXTRA) -I inc
 RM = rm -rf
 CC = g++
 
