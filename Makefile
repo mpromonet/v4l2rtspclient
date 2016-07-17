@@ -14,7 +14,7 @@ CFLAGS += -I h264bitstream
 
 
 
-v4l2rtspclient: h264bitstream/h264_stream.c h264bitstream/h264_nal.c h264bitstream/h264_sei.c src/v4l2rtspclient.cpp libv4l2cpp.a
+v4l2rtspclient: h264bitstream/h264_stream.c h264bitstream/h264_nal.c h264bitstream/h264_sei.c src/v4l2rtspclient.cpp src/v4l2writer.cpp src/rtspconnectionclient.cpp libv4l2cpp.a
 	$(CC) -o $@ $(CFLAGS) $^ $(LDFLAGS)
 
 h264bitstream/h264_stream.c:
