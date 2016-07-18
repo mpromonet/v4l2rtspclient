@@ -58,6 +58,7 @@ bool V4l2Writer::onData(unsigned char* buffer, ssize_t size)
 		int nal_end   = 0;
 		find_nal_unit(buffer, size, &nal_start, &nal_end);
 		read_nal_unit(m_h264, &buffer[nal_start], nal_end - nal_start);
+		LOG(DEBUG) << "NAL:" << m_h264->nal->nal_unit_type;
 		if (m_h264->nal->nal_unit_type == NAL_UNIT_TYPE_SPS)
 		{
 			unsigned int width = ((m_h264->sps->pic_width_in_mbs_minus1 +1)*16) - m_h264->sps->frame_crop_left_offset*2 - m_h264->sps->frame_crop_right_offset*2;

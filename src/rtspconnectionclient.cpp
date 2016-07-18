@@ -14,6 +14,16 @@
 
 #include "rtspconnectionclient.h"
 
+Environment::Environment() : BasicUsageEnvironment(*BasicTaskScheduler::createNew()), m_stop(0)
+{
+}
+
+Environment::~Environment()
+{
+	TaskScheduler* scheduler = &this->taskScheduler();
+	this->reclaim();
+	delete scheduler;	
+}
 
 RTSPConnection::SessionSink::SessionSink(UsageEnvironment& env, Callback* callback) 
 	: MediaSink(env)
@@ -76,33 +86,31 @@ Boolean RTSPConnection::SessionSink::continuePlaying()
 
 
 		
-RTSPConnection::RTSPConnection(Callback* callback, const std::string & rtspURL, int verbosityLevel) 
-				: RTSPClient(*BasicUsageEnvironment::createNew(*BasicTaskScheduler::createNew()), rtspURL.c_str(), verbosityLevel, NULL, 0
+RTSPConnection::RTSPConnection(UsageEnvironment& env, Callback* callback, const std::string & rtspURL, int verbosityLevel) 
+				: RTSPClient(env, rtspURL.c_str(), verbosityLevel, NULL, 0
 #if LIVEMEDIA_LIBRARY_VERSION_INT > 1371168000 
 					,-1
 #endif
 					)
-				, m_env(&this->envir())
 				, m_session(NULL)
 				, m_subSessionIter(NULL)
 				, m_callback(callback)
-				, m_stop(0)
 {
+	// initiate connection process
+	this->sendNextCommand();
 }
 
 RTSPConnection::~RTSPConnection()
 {
 	delete m_subSessionIter;
 	Medium::close(m_session);
-	TaskScheduler* scheduler = &m_env->taskScheduler();
-	m_env->reclaim();
-	delete scheduler;
 }
 		
 void RTSPConnection::sendNextCommand() 
 {
 	if (m_subSessionIter == NULL)
 	{
+		// no SDP, send DESCRIBE
 		this->sendDescribeCommand(continueAfterDESCRIBE); 
 	}
 	else
@@ -110,20 +118,22 @@ void RTSPConnection::sendNextCommand()
 		m_subSession = m_subSessionIter->next();
 		if (m_subSession != NULL) 
 		{
+			// still subsession to SETUP
 			if (!m_subSession->initiate()) 
 			{
-				*m_env << "Failed to initiate " << m_subSession->mediumName() << "/" << m_subSession->codecName() << " subsession: " << m_env->getResultMsg() << "\n";
+				LOG(WARN) << "Failed to initiate " << m_subSession->mediumName() << "/" << m_subSession->codecName() << " subsession: " << envir().getResultMsg();
 				this->sendNextCommand();
 			} 
 			else 
 			{					
-				*m_env << "Initiated " << m_subSession->mediumName() << "/" << m_subSession->codecName() << " subsession\n";
+				LOG(NOTICE) << "Initiated " << m_subSession->mediumName() << "/" << m_subSession->codecName() << " subsession";
 			}
 
 			this->sendSetupCommand(*m_subSession, continueAfterSETUP);
 		}
 		else
 		{
+			// no more subsession to SETUP, send PLAY
 			this->sendPlayCommand(*m_session, continueAfterPLAY);
 		}
 	}
@@ -137,9 +147,8 @@ void RTSPConnection::continueAfterDESCRIBE(int resultCode, char* resultString)
 	}
 	else
 	{
-		char* const sdpDescription = resultString;
-		*m_env << "Got a SDP description:\n" << sdpDescription << "\n";
-		m_session = MediaSession::createNew(*m_env, sdpDescription);
+		LOG(NOTICE) << "Got SDP:\n" << resultString;
+		m_session = MediaSession::createNew(envir(), resultString);
 		m_subSessionIter = new MediaSubsessionIterator(*m_session);
 		this->sendNextCommand();  
 	}
@@ -154,14 +163,14 @@ void RTSPConnection::continueAfterSETUP(int resultCode, char* resultString)
 	}
 	else
 	{				
-		m_subSession->sink = SessionSink::createNew(*m_env, m_callback);
+		m_subSession->sink = SessionSink::createNew(envir(), m_callback);
 		if (m_subSession->sink == NULL) 
 		{
-			*m_env << "Failed to create a data sink for " << m_subSession->mediumName() << "/" << m_subSession->codecName() << " subsession: " << m_env->getResultMsg() << "\n";
+			LOG(WARN) << "Failed to create a data sink for " << m_subSession->mediumName() << "/" << m_subSession->codecName() << " subsession: " << envir().getResultMsg() << "\n";
 		}
 		else if (m_callback->onNewSession(m_subSession->mediumName(), m_subSession->codecName()))
 		{
-			*m_env << "Created a data sink for the \"" << m_subSession << "\" subsession\n";
+			LOG(WARN) << "Created a data sink for the \"" << m_subSession->mediumName() << "/" << m_subSession->codecName() << "\" subsession";
 			m_subSession->sink->startPlaying(*(m_subSession->readSource()), NULL, NULL);
 		}
 	}

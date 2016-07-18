@@ -22,6 +22,25 @@ static void continueAfter ## uri(RTSPClient* rtspClient, int resultCode, char* r
 void continueAfter ## uri (int resultCode, char* resultString); \
 /**/
 
+class Environment : public BasicUsageEnvironment
+{
+	public:
+		Environment();
+		~Environment();
+	
+	
+		void mainloop()
+		{
+			this->taskScheduler().doEventLoop(&m_stop);
+		}
+				
+		void stop() { m_stop = 1; };	
+		
+	protected:
+		char                     m_stop;		
+};
+
+
 /* ---------------------------------------------------------------------------
 **  RTSP client connection interface
 ** -------------------------------------------------------------------------*/
@@ -74,32 +93,19 @@ class RTSPConnection : public RTSPClient
 		};
 	
 	public:
-		RTSPConnection(Callback* callback, const std::string & rtspURL, int verbosityLevel = 255);
+		RTSPConnection(UsageEnvironment& env, Callback* callback, const std::string & rtspURL, int verbosityLevel = 255);
 		virtual ~RTSPConnection();
-	
+
+	protected:
 		void sendNextCommand(); 
 				
 		RTSP_CALLBACK(DESCRIBE,resultCode,resultString);
 		RTSP_CALLBACK(SETUP,resultCode,resultString);
 		RTSP_CALLBACK(PLAY,resultCode,resultString);
-
-		void start()
-		{
-			this->sendNextCommand(); 
-		}
-		
-		void mainloop()
-		{
-			m_env->taskScheduler().doEventLoop(&m_stop);
-		}
-				
-		void stop() { m_stop = 1; };
 		
 	protected:
-		UsageEnvironment*        m_env;
 		MediaSession*            m_session;                   
 		MediaSubsession*         m_subSession;             
 		MediaSubsessionIterator* m_subSessionIter;
 		Callback*                m_callback; 	
-		char                     m_stop;
 };
