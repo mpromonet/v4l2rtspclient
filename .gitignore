@@ -1,2 +1,2 @@
-libv4l2cpp.a
+*.a
 v4l2rtspclient

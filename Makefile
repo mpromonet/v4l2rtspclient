@@ -9,12 +9,14 @@ CFLAGS += -I libv4l2cpp/inc
 # live555
 CFLAGS += -I $(SYSROOT)/usr/include/liveMedia  -I $(SYSROOT)/usr/include/groupsock -I $(SYSROOT)/usr/include/UsageEnvironment -I $(SYSROOT)/usr/include/BasicUsageEnvironment/
 LDFLAGS += -lliveMedia -lgroupsock -lUsageEnvironment -lBasicUsageEnvironment
+# live555helper
+CFLAGS += -I live555helper/inc
 # h264bitstream
 CFLAGS += -I h264bitstream
 
 
 
-v4l2rtspclient: h264bitstream/h264_stream.c h264bitstream/h264_nal.c h264bitstream/h264_sei.c src/v4l2rtspclient.cpp src/v4l2writer.cpp src/rtspconnectionclient.cpp libv4l2cpp.a
+v4l2rtspclient: h264bitstream/h264_stream.c h264bitstream/h264_nal.c h264bitstream/h264_sei.c src/v4l2rtspclient.cpp src/v4l2writer.cpp libv4l2cpp.a live555helper.a
 	$(CC) -o $@ $(CFLAGS) $^ $(LDFLAGS)
 
 h264bitstream/h264_stream.c:
@@ -24,9 +26,14 @@ h264bitstream/h264_stream.c:
 libv4l2cpp.a: 
 	git submodule init libv4l2cpp
 	git submodule update libv4l2cpp
-	make -C libv4l2cpp
-	mv libv4l2cpp/libv4l2wrapper.a $@ 
-	make -C libv4l2cpp clean
+	make -C $(*F)
+	mv $(*F)/*.a $@ 
+	make -C $(*F) clean
+
+live555helper.a:
+	make -C $(*F)
+	mv $(*F)/$@ $@ 
+	make -C $(*F) clean
 
 upgrade:
 	git submodule foreach git pull origin master

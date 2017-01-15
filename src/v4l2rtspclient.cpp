@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 	
 	V4l2Writer callback(out_devname, ioTypeOut);
 	Environment env;
-	RTSPConnection connnection(env, &callback, url, verbose);
+	RTSPConnection connnection(env, &callback, url.c_str(), verbose);
 	env.mainloop();
 	
 	return 0;

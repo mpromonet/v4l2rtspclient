@@ -4,3 +4,6 @@
 [submodule "h264bitstream"]
 	path = h264bitstream
 	url = https://github.com/aizvorski/h264bitstream
+[submodule "live555helper"]
+	path = live555helper
+	url = https://github.com/mpromonet/live555helper
