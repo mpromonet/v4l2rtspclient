@@ -19,6 +19,7 @@
 
 #include "logger.h"
 
+#include "environment.h"
 #include "rtspconnectionclient.h"
 #include "v4l2writer.h"
 
