@@ -24,13 +24,15 @@ h264bitstream/h264_stream.c:
 	git submodule update h264bitstream
 
 libv4l2cpp.a: 
-	git submodule init libv4l2cpp
-	git submodule update libv4l2cpp
+	git submodule init $(*F)
+	git submodule update $(*F)
 	make -C $(*F)
 	mv $(*F)/*.a $@ 
 	make -C $(*F) clean
 
 live555helper.a:
+	git submodule init $(*F)
+	git submodule update $(*F)
 	make -C $(*F)
 	mv $(*F)/$@ $@ 
 	make -C $(*F) clean

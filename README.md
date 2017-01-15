@@ -11,6 +11,7 @@ Domain public
 Dependencies
 ------------
  - [libv4l2cpp](https://github.com/mpromonet/libv4l2cpp) as a submodule
+ - [live555helper](https://github.com/mpromonet/live555helper) as a submodule
  - [h264bitstream](https://github.com/aizvorski/h264bitstream) as a submodule
 
 Build
