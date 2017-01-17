@@ -1,4 +1,6 @@
 dist: trusty
+before_install:
+- sudo apt-get install -y liblog4cpp5-dev 
 language: cpp
 compiler:
 - gcc
