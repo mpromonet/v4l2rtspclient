@@ -1,6 +1,7 @@
 CFLAGS = -W -Wall -pthread -g -pipe $(CFLAGS_EXTRA) -I inc
 RM = rm -rf
 CC = g++
+LDFLAGS += -llog4cpp
 
 # libv4l2cpp
 CFLAGS += -I libv4l2cpp/inc
