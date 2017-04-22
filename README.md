@@ -1,3 +1,5 @@
+[![Build status](https://travis-ci.org/mpromonet/v4l2rtspclient.png)](https://travis-ci.org/mpromonet/v4l2rtspclient)
+
 v4l2rtspclient
 ==============
 This is an RTSP client that write to a V4L2 output device.
