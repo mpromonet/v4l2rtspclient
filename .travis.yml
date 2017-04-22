@@ -1,6 +1,9 @@
 dist: trusty
-before_install:
-- sudo apt-get install -y liblog4cpp5-dev liblivemedia-dev
+addons:
+  apt:
+    packages:
+    - liblog4cpp5-dev 
+    - liblivemedia-dev
 language: cpp
 compiler:
 - gcc
