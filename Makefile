@@ -1,7 +1,16 @@
 CFLAGS = -W -Wall -pthread -g -pipe $(CFLAGS_EXTRA) -I inc
 RM = rm -rf
-CC = g++
+CC = $(CROSS)gcc
+CXX = $(CROSS)g++
+PREFIX?=/usr
+
+
+# log4cpp
+ifneq ($(wildcard $(SYSROOT)$(PREFIX)/include/log4cpp/Category.hh),)
+$(info with log4cpp)
+CFLAGS += -DHAVE_LOG4CPP -I $(SYSROOT)$(PREFIX)/include
 LDFLAGS += -llog4cpp
+endif
 
 # libv4l2cpp
 CFLAGS += -I libv4l2cpp/inc
@@ -16,7 +25,7 @@ CFLAGS += -I h264bitstream
 
 
 v4l2rtspclient: h264bitstream/h264_stream.c h264bitstream/h264_nal.c h264bitstream/h264_sei.c src/v4l2rtspclient.cpp src/v4l2writer.cpp libv4l2cpp.a live555helper.a
-	$(CC) -o $@ $(CFLAGS) $^ $(LDFLAGS)
+	$(CXX) -o $@ $(CFLAGS) $^ $(LDFLAGS)
 
 h264bitstream/h264_stream.c:
 	git submodule init h264bitstream
@@ -36,11 +45,12 @@ live555helper.a:
 	mv $(*F)/$@ $@ 
 	make -C $(*F) clean
 
-upgrade:
+upgrade: 
 	git submodule foreach git pull origin master
 	
-install:
-	install -m 0755 $(ALL_PROGS) /usr/local/bin
+install: v4l2rtspclient
+	mkdir -p $(PREFIX)/bin
+	install -m 0755 $(ALL_PROGS) $(PREFIX)/bin
 
 clean:
 	-@$(RM) v4l2rtspclient .*o *.a
