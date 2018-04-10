@@ -33,14 +33,14 @@ int main(int argc, char* argv[])
 	std::string url;
 	const char *out_devname = "/dev/video1";	
 	int c = 0;
-	V4l2DeviceFactory::IoType ioTypeOut = V4l2DeviceFactory::IOTYPE_MMAP;
+	V4l2Access::IoType ioTypeOut = V4l2Access::IOTYPE_MMAP;
 	
 	while ((c = getopt (argc, argv, "hv::w")) != -1)
 	{
 		switch (c)
 		{
 			case 'v':	verbose   = 1; if (optarg && *optarg=='v') verbose++;  break;
-			case 'w':	ioTypeOut = V4l2DeviceFactory::IOTYPE_READ; break;			
+			case 'w':	ioTypeOut = V4l2Access::IOTYPE_READWRITE; break;			
 			case 'h':
 			{
 				std::cout << argv[0] << " [-v[v]] rtsp_url dest_device" << std::endl;

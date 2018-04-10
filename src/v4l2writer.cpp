@@ -16,7 +16,7 @@
 
 uint8_t marker[] = { 0, 0, 0, 1};
 
-V4l2Writer::V4l2Writer(const std::string &out_devname, V4l2DeviceFactory::IoType ioTypeOut) : m_videoOutput(NULL), m_out_devname(out_devname), m_ioTypeOut(ioTypeOut) 
+V4l2Writer::V4l2Writer(const std::string &out_devname, V4l2Access::IoType ioTypeOut) : m_videoOutput(NULL), m_out_devname(out_devname), m_ioTypeOut(ioTypeOut) 
 {
 	m_h264 = h264_new();
 }
@@ -38,7 +38,7 @@ ssize_t V4l2Writer::onNewBuffer(unsigned char* buffer, ssize_t size)
 	return 	markerSize;		
 }
 
-bool V4l2Writer::onNewSession(const char* media, const char* codec)
+bool V4l2Writer::onNewSession(const char* id, const char* media, const char* codec)
 {
 	bool success = false;
 	if ( (strcmp(media, "video") == 0) && (strcmp(codec, "H264") == 0) )
@@ -48,7 +48,7 @@ bool V4l2Writer::onNewSession(const char* media, const char* codec)
 	return success;
 }
 
-bool V4l2Writer::onData(unsigned char* buffer, ssize_t size)
+bool V4l2Writer::onData(const char* id, unsigned char* buffer, ssize_t size, timeval tv)
 {
 	bool success = false;
 
@@ -67,7 +67,7 @@ bool V4l2Writer::onData(unsigned char* buffer, ssize_t size)
 			LOG(NOTICE) << "geometry:" << width << "x" << height;
 			
 			V4L2DeviceParameters outparam(m_out_devname.c_str(), V4L2_PIX_FMT_H264, width, height, 0, 255);
-			m_videoOutput = V4l2DeviceFactory::CreateVideoOutput(outparam, m_ioTypeOut);			
+			m_videoOutput = V4l2Output::create(outparam, m_ioTypeOut);			
 			success = (m_videoOutput != NULL);					
 		}
 	}
