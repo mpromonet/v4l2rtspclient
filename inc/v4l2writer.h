@@ -26,7 +26,7 @@ class V4l2Writer : public RTSPConnection::Callback
 		virtual ~V4l2Writer();
 	
 		virtual ssize_t onNewBuffer(unsigned char* buffer, ssize_t size);		
-		virtual bool    onNewSession(const char* id, const char* media, const char* codec);
+		virtual bool    onNewSession(const char* id, const char* media, const char* codec, const char* sdp);
 		virtual bool    onData(const char* id, unsigned char* buffer, ssize_t size, timeval tv);
 			
 	private:

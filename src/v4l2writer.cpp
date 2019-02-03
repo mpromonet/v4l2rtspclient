@@ -38,7 +38,7 @@ ssize_t V4l2Writer::onNewBuffer(unsigned char* buffer, ssize_t size)
 	return 	markerSize;		
 }
 
-bool V4l2Writer::onNewSession(const char* id, const char* media, const char* codec)
+bool V4l2Writer::onNewSession(const char* id, const char* media, const char* codec, const char* sdp)
 {
 	bool success = false;
 	if ( (strcmp(media, "video") == 0) && (strcmp(codec, "H264") == 0) )
