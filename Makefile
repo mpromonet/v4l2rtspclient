@@ -50,7 +50,7 @@ upgrade:
 	
 install: v4l2rtspclient
 	mkdir -p $(PREFIX)/bin
-	install -m 0755 $(ALL_PROGS) $(PREFIX)/bin
+	install -m 0755 v4l2rtspclient $(PREFIX)/bin
 
 clean:
 	-@$(RM) v4l2rtspclient .*o *.a
