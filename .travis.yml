@@ -1,4 +1,4 @@
-dist: trusty
+dist: focus
 addons:
   apt:
     packages:
