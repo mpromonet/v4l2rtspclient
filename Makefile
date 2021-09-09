@@ -18,7 +18,7 @@ CFLAGS += -I libv4l2cpp/inc
 CFLAGS += -I live555helper/live/liveMedia/include  -I live555helper/live/groupsock/include -I live555helper/live/UsageEnvironment/include -I live555helper/live/BasicUsageEnvironment/include
 #LDFLAGS += -L live555helper/live -lliveMedia -lgroupsock -lUsageEnvironment -lBasicUsageEnvironment
 # live555helper
-CFLAGS += -I live555helper/inc
+CFLAGS += -I live555helper/inc -DNO_OPENSSL=1
 # h264bitstream
 CFLAGS += -I h264bitstream
 
