@@ -22,7 +22,7 @@
 class V4l2Writer : public RTSPConnection::Callback
 {
 	public:
-		V4l2Writer(const std::string &out_devname, V4l2Access::IoType ioTypeOut = V4l2Access::IOTYPE_MMAP);		
+		V4l2Writer(const std::string &out_devname, V4l2IoType ioTypeOut = V4l2IoType::IOTYPE_MMAP);		
 		virtual ~V4l2Writer();
 	
 		virtual ssize_t onNewBuffer(unsigned char* buffer, ssize_t size);		
@@ -32,7 +32,7 @@ class V4l2Writer : public RTSPConnection::Callback
 	private:
 		V4l2Output*               m_videoOutput;
 		std::string               m_out_devname;
-		V4l2Access::IoType        m_ioTypeOut;
+		V4l2IoType        m_ioTypeOut;
 		h264_stream_t*            m_h264; 
 };
 
