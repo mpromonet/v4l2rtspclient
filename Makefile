@@ -16,7 +16,6 @@ endif
 CFLAGS += -I libv4l2cpp/inc
 # live555
 CFLAGS += -I live555helper/live/liveMedia/include  -I live555helper/live/groupsock/include -I live555helper/live/UsageEnvironment/include -I live555helper/live/BasicUsageEnvironment/include
-#LDFLAGS += -L live555helper/live -lliveMedia -lgroupsock -lUsageEnvironment -lBasicUsageEnvironment
 # live555helper
 CFLAGS += -I live555helper/inc -DNO_OPENSSL=1
 # h264bitstream
@@ -34,14 +33,14 @@ h264bitstream/h264_stream.c:
 libv4l2cpp.a: 
 	git submodule init $(*F)
 	git submodule update $(*F)
-	make -C $(*F)
+	cd $(*F) && cmake . && make && cd - 
 	mv $(*F)/*.a $@ 
 	make -C $(*F) clean
 
 libliblive555helper.a:
 	git submodule init live555helper
 	git submodule update live555helper
-	cd live555helper && cmake . && make && cd - 
+	cd live555helper && cmake -DDETECT_OPENSSL=OFF . && make && cd - 
 	mv live555helper/$@ $@ 
 	make -C live555helper clean
 
