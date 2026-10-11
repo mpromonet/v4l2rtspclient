@@ -66,7 +66,7 @@ bool V4l2Writer::onData(const char* id, unsigned char* buffer, ssize_t size, tim
 			
 			LOG(NOTICE) << "geometry:" << width << "x" << height;
 			
-			V4L2DeviceParameters outparam(m_out_devname.c_str(), V4L2_PIX_FMT_H264, width, height, 0, m_ioTypeOut, 255);
+			V4L2DeviceParameters outparam(m_out_devname.c_str(), V4L2_PIX_FMT_H264, width, height, 0, m_ioTypeOut);
 			m_videoOutput = V4l2Output::create(outparam);			
 			success = (m_videoOutput != NULL);					
 		}
