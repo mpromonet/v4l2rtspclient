@@ -25,8 +25,8 @@ class V4l2Writer : public RTSPConnection::Callback
 		V4l2Writer(const std::string &out_devname, V4l2IoType ioTypeOut = V4l2IoType::IOTYPE_MMAP);		
 		virtual ~V4l2Writer();
 	
-		virtual ssize_t onNewBuffer(unsigned char* buffer, ssize_t size);		
-		virtual bool    onNewSession(const char* id, const char* media, const char* codec, const char* sdp);
+		virtual ssize_t onNewBuffer(const char* id, const char* mime, unsigned char* buffer, ssize_t size);		
+		virtual bool    onNewSession(const char* id, const char* media, const char* codec, const char* sdp, unsigned int rtpfrequency, unsigned int channels);
 		virtual bool    onData(const char* id, unsigned char* buffer, ssize_t size, timeval tv);
 			
 	private:

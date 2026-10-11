@@ -27,7 +27,7 @@ V4l2Writer::~V4l2Writer()
 	h264_free(m_h264);
 }
 
-ssize_t V4l2Writer::onNewBuffer(unsigned char* buffer, ssize_t size)
+ssize_t V4l2Writer::onNewBuffer(const char* id, const char* mime, unsigned char* buffer, ssize_t size)
 {
 	ssize_t markerSize = 0;
 	if (size > sizeof(marker))
@@ -38,7 +38,7 @@ ssize_t V4l2Writer::onNewBuffer(unsigned char* buffer, ssize_t size)
 	return 	markerSize;		
 }
 
-bool V4l2Writer::onNewSession(const char* id, const char* media, const char* codec, const char* sdp)
+bool V4l2Writer::onNewSession(const char* id, const char* media, const char* codec, const char* sdp, unsigned int rtpfrequency, unsigned int channels)
 {
 	bool success = false;
 	if ( (strcmp(media, "video") == 0) && (strcmp(codec, "H264") == 0) )
