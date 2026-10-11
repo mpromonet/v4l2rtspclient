@@ -34,13 +34,15 @@ int main(int argc, char* argv[])
 	const char *out_devname = "/dev/video1";	
 	int c = 0;
 	V4l2IoType ioTypeOut = V4l2IoType::IOTYPE_MMAP;
+	std::map<std::string,std::string> opts;
 	
-	while ((c = getopt (argc, argv, "hv::w")) != -1)
+	while ((c = getopt (argc, argv, "hv::wr:")) != -1)
 	{
 		switch (c)
 		{
 			case 'v':	verbose   = 1; if (optarg && *optarg=='v') verbose++;  break;
 			case 'w':	ioTypeOut = V4l2IoType::IOTYPE_READWRITE; break;			
+			case 'r':       opts["rtptransport"] = optarg; break;
 			case 'h':
 			{
 				std::cout << argv[0] << " [-v[v]] rtsp_url dest_device" << std::endl;
@@ -70,7 +72,8 @@ int main(int argc, char* argv[])
 	
 	V4l2Writer callback(out_devname, ioTypeOut);
 	Environment env;
-	RTSPConnection connnection(env, &callback, url.c_str(), verbose);
+	RTSPConnection connection(env, &callback, url.c_str(), opts, verbose);
+	connection.start();
 	env.mainloop();
 	
 	return 0;
