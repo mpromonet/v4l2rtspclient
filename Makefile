@@ -20,20 +20,31 @@ CFLAGS += -I live555helper/live/liveMedia/include  -I live555helper/live/groupso
 CFLAGS += -I live555helper/inc -DNO_OPENSSL=1
 # h264bitstream
 CFLAGS += -I h264bitstream
+# hevcbitstream
+CFLAGS += -I hevcbitstream
 
 
-
-v4l2rtspclient: h264bitstream/h264_stream.c h264bitstream/h264_nal.c h264bitstream/h264_sei.c src/v4l2rtspclient.cpp src/v4l2writer.cpp libv4l2cpp.a libliblive555helper.a
-	$(CXX) -o $@ $(CFLAGS) $^ $(LDFLAGS)
+v4l2rtspclient: h264bitstream/h264_stream.c h264bitstream/h264_nal.c h264bitstream/h264_sei.c hevc_stream.o hevc_nal.o src/v4l2rtspclient.cpp src/v4l2writer.cpp libv4l2cpp.a libliblive555helper.a
+	$(CXX) -o $@ $(CFLAGS) $^ $(LDFLAGS) -lm
 
 h264bitstream/h264_stream.c:
 	git submodule init h264bitstream
 	git submodule update h264bitstream
 
+hevcbitstream/hevc_stream.c:
+	git submodule init hevcbitstream
+	git submodule update hevcbitstream
+
+hevc_stream.o: hevcbitstream/hevc_stream.c
+	$(CC) $(CFLAGS) -I hevcbitstream -Dread_filler_data_rbsp=read_hevc_filler_data_rbsp -Dread_debug_filler_data_rbsp=read_debug_hevc_filler_data_rbsp -Dwrite_filler_data_rbsp=write_hevc_filler_data_rbsp -c -o $@ $<
+
+hevc_nal.o: hevcbitstream/hevc_nal.c
+	$(CC) $(CFLAGS) -I hevcbitstream -c -o $@ $<
+
 libv4l2cpp.a: 
 	git submodule init $(*F)
 	git submodule update $(*F)
-	cd $(*F) && cmake . && make && cd - 
+	cd $(*F) && cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 . && make && cd - 
 	mv $(*F)/*.a $@ 
 	make -C $(*F) clean
 
@@ -52,5 +63,4 @@ install: v4l2rtspclient
 	install -m 0755 v4l2rtspclient $(PREFIX)/bin
 
 clean:
-	-@$(RM) v4l2rtspclient .*o *.a
-
+	-@$(RM) v4l2rtspclient .*o *.a hevc_stream.o hevc_nal.o

@@ -17,6 +17,7 @@
 
 #include "rtspconnectionclient.h"
 #include "h264_stream.h"
+#include "hevc_stream.h"
 
 
 class V4l2Writer : public RTSPConnection::Callback
@@ -33,6 +34,7 @@ class V4l2Writer : public RTSPConnection::Callback
 		V4l2Output*               m_videoOutput;
 		std::string               m_out_devname;
 		V4l2IoType        m_ioTypeOut;
+		std::string               m_codec;
 		h264_stream_t*            m_h264; 
+		hevc_stream_t*            m_hevc;
 };
-

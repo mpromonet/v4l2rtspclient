@@ -1,2 +1,3 @@
 *.a
 v4l2rtspclient
+*.o

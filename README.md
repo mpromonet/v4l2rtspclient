@@ -6,15 +6,15 @@
 v4l2rtspclient
 ==============
 This is an RTSP client that write to a V4L2 output device.
-It support only H264 format.
+It supports H.264 and H.265/HEVC video formats.
 
 Dependencies
 ------------
  - [libv4l2cpp](https://github.com/mpromonet/libv4l2cpp) as a submodule
  - [live555helper](https://github.com/mpromonet/live555helper) as a submodule
  - [h264bitstream](https://github.com/aizvorski/h264bitstream) as a submodule
+ - [hevcbitstream](https://github.com/leslie-wang/hevcbitstream) as a submodule
 
 Build
 ------- 
 	make
-
